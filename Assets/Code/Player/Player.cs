@@ -12,13 +12,19 @@ public class PlayerPhysics : MonoBehaviour
     private Vector3 _moveDirection;
     private float _movementSpeed;
     private CharacterController _characterController;
+    private float _verticalVelocity;
+    private float _gravity = -9.81f;
 
     private void Update()
     {
-        if (_moveDirection == Vector3.zero) return;
+        _verticalVelocity += _gravity * Time.deltaTime;
+
+        if (_characterController.isGrounded && _verticalVelocity < 0) _verticalVelocity = -2f;
 
         Vector3 movePosition = (transform.right * _moveDirection.x + transform.forward * _moveDirection.z).normalized;
         Vector3 finalPosition = movePosition * (Time.deltaTime * _movementSpeed);
+
+        finalPosition.y = _verticalVelocity * Time.deltaTime;
 
         _characterController.Move(finalPosition);
     }

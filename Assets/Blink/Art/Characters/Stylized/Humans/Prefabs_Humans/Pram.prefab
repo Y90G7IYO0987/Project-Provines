@@ -2415,7 +2415,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4957605393579145646}
   - component: {fileID: 4957605393579145647}
-  - component: {fileID: 1392001289340052323}
+  - component: {fileID: 7799214857063603805}
   - component: {fileID: 1598398348496988539}
   m_Layer: 0
   m_Name: Pram
@@ -2463,7 +2463,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!143 &1392001289340052323
+--- !u!143 &7799214857063603805
 CharacterController:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2473,7 +2473,7 @@ CharacterController:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -2486,9 +2486,9 @@ CharacterController:
   m_Radius: 0.5
   m_SlopeLimit: 45
   m_StepOffset: 0.3
-  m_SkinWidth: 0.08
+  m_SkinWidth: 0.01
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!114 &1598398348496988539
 MonoBehaviour:
   m_ObjectHideFlags: 0
