@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ee65ded376320548910923af34d24ed, type: 3}
+  m_Name: PlayerData
+  m_EditorClassIdentifier: 
+  MaxHealth: 100
+  MaxStamina: 150
+  CurrentHealth: 0
+  CurrentStamina: 0
+  MaxDamage: 30
+  IsRunning: 0
+  Prefab: {fileID: 4957605393579145644, guid: 4f46098734d87e24490aef9267915ad2, type: 3}
+  Animator: {fileID: 4957605393579145647, guid: 4f46098734d87e24490aef9267915ad2,
+    type: 3}
