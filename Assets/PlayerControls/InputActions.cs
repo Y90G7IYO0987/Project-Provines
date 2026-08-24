@@ -44,6 +44,24 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""MenuMovement"",
+                    ""type"": ""Button"",
+                    ""id"": ""709c9bd4-23d7-4c69-9e6e-2fca1deefea9"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""MenuInteraction"",
+                    ""type"": ""Button"",
+                    ""id"": ""14253442-7c0b-4dce-b761-47577d611a9f"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -123,6 +141,39 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""action"": ""Jump"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ce425804-4f19-4c84-8212-0a0033108998"",
+                    ""path"": ""<Keyboard>/rightArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MenuMovement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d3fb9032-e4a0-4dd2-a005-68af935782d3"",
+                    ""path"": ""<Keyboard>/leftArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MenuMovement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7055211f-dc64-44a6-93d4-80a6f5b22a8a"",
+                    ""path"": ""<Keyboard>/tab"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MenuInteraction"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -133,6 +184,8 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
         m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
+        m_Player_MenuMovement = m_Player.FindAction("MenuMovement", throwIfNotFound: true);
+        m_Player_MenuInteraction = m_Player.FindAction("MenuInteraction", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -196,12 +249,16 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     private List<IPlayerActions> m_PlayerActionsCallbackInterfaces = new List<IPlayerActions>();
     private readonly InputAction m_Player_Move;
     private readonly InputAction m_Player_Jump;
+    private readonly InputAction m_Player_MenuMovement;
+    private readonly InputAction m_Player_MenuInteraction;
     public struct PlayerActions
     {
         private @InputActions m_Wrapper;
         public PlayerActions(@InputActions wrapper) { m_Wrapper = wrapper; }
         public InputAction @Move => m_Wrapper.m_Player_Move;
         public InputAction @Jump => m_Wrapper.m_Player_Jump;
+        public InputAction @MenuMovement => m_Wrapper.m_Player_MenuMovement;
+        public InputAction @MenuInteraction => m_Wrapper.m_Player_MenuInteraction;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -217,6 +274,12 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Jump.started += instance.OnJump;
             @Jump.performed += instance.OnJump;
             @Jump.canceled += instance.OnJump;
+            @MenuMovement.started += instance.OnMenuMovement;
+            @MenuMovement.performed += instance.OnMenuMovement;
+            @MenuMovement.canceled += instance.OnMenuMovement;
+            @MenuInteraction.started += instance.OnMenuInteraction;
+            @MenuInteraction.performed += instance.OnMenuInteraction;
+            @MenuInteraction.canceled += instance.OnMenuInteraction;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -227,6 +290,12 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Jump.started -= instance.OnJump;
             @Jump.performed -= instance.OnJump;
             @Jump.canceled -= instance.OnJump;
+            @MenuMovement.started -= instance.OnMenuMovement;
+            @MenuMovement.performed -= instance.OnMenuMovement;
+            @MenuMovement.canceled -= instance.OnMenuMovement;
+            @MenuInteraction.started -= instance.OnMenuInteraction;
+            @MenuInteraction.performed -= instance.OnMenuInteraction;
+            @MenuInteraction.canceled -= instance.OnMenuInteraction;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -248,5 +317,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     {
         void OnMove(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
+        void OnMenuMovement(InputAction.CallbackContext context);
+        void OnMenuInteraction(InputAction.CallbackContext context);
     }
 }
