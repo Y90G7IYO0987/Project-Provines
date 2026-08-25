@@ -68,54 +68,48 @@ public class MenuButtonsCharacteristic
     }
 }
 
-public class MenuButtonLines : MonoBehaviour
+public class MenuManager : MonoBehaviour
 {
-    private InputActions _inputActions;
-    private MenuButtonsCharacteristic _menuButtonsMovement;
-    private Image[] _menuActiveLines;
-    private Image _currentOpenedMenu;
-    private Coroutine _delayCoroutine;
-    private GameObject _mainMenuUI;
+    public int MaxMenuWindows { get; private set; }
+
+    public MenuButtonsCharacteristic MenuButtonsMovement { get; private set; }
+    public Image[] MenuActiveLines { get; private set; }
+    public GameObject MenuUI;
+
     private float _lastOpenedMenu;
-    private float _openedMenuCooldown = 0.5f;
+    private float _openedMenuCooldown = 0.33f;
 
-    private const int MaxPosition = 4;
+    private List<GameObject> _menuWindowsList;
+    private Dictionary<string, GameObject> _menuWindows;
+    private GameObject _openedWindow;
+    private MenuButtonLines _menuButtonLines;
 
-    private void Awake()
+    private const string DefaultWindowName = "Map";    
+
+    public void Initialize(GameInput gameInput, Image[] menuActiveLines, GameObject menuUI, List<GameObject> menuWindows)
     {
-        _menuButtonsMovement = new MenuButtonsCharacteristic(MaxPosition);
-    }
+        MenuUI = menuUI;
+        MenuActiveLines = menuActiveLines;
 
-    private void Start()
-    {
-        _inputActions.Player.MenuMovement.started += StartMovingRoutine;
-        _inputActions.Player.MenuMovement.performed += Moving;
-        _inputActions.Player.MenuMovement.canceled += StopMovingRoutine;
-        _inputActions.Player.MenuInteraction.performed += OpenMenuWindow;
-    }
+        _menuWindowsList = menuWindows;
+        _menuWindows = new Dictionary<string, GameObject>();
 
-    public void Initialize(GameInput gameInput, Image[] menuActiveLines, GameObject mainMenu)
-    {
-        _inputActions = gameInput.InputActions;
-        _menuActiveLines = menuActiveLines;
-        _mainMenuUI = mainMenu;
-    }
+        MaxMenuWindows = _menuWindowsList.Count;
+        MenuButtonsMovement = new MenuButtonsCharacteristic(MaxMenuWindows);
 
-    public void SetNewMenu(int index)
-    {
-        if (_menuButtonsMovement.CurrentPosition != index) _menuButtonsMovement.SetIndex(index);
-
-        if (_currentOpenedMenu != null) _currentOpenedMenu.enabled = false;
-
-        if (index < _menuActiveLines.Length)
+        foreach (GameObject menuWindow in _menuWindowsList)
         {
-            _currentOpenedMenu = _menuActiveLines[index];
+            if (menuWindow == null) continue;
+
+            _menuWindows.Add(menuWindow.name, menuWindow);
         }
 
-        if (_currentOpenedMenu != null) _currentOpenedMenu.enabled = true;
+        _menuButtonLines = GetComponent<MenuButtonLines>();
+
+        _menuButtonLines.Initialize(gameInput, MenuActiveLines, MenuUI);
     }
 
-    public void OpenMenuWindow(InputAction.CallbackContext context)
+    public void OpenMenu(InputAction.CallbackContext context)
     {
         if (Time.time - _lastOpenedMenu < _openedMenuCooldown)
         {
@@ -125,11 +119,123 @@ public class MenuButtonLines : MonoBehaviour
 
         _lastOpenedMenu = Time.time;
 
-        _mainMenuUI.SetActive(!_mainMenuUI.activeInHierarchy);
+        MenuUI.SetActive(!MenuUI.activeInHierarchy);      
+        
+        if (MenuUI.activeInHierarchy) OpenDefaultWindow();
     }
+
+    public void OpenMenuWindow(string menuWindowName)
+    {
+        if (_openedWindow != null && _openedWindow.name != menuWindowName)
+        {
+            _openedWindow.SetActive(false);
+        }
+
+        if (_menuWindows.TryGetValue(menuWindowName, out GameObject menu))
+        {
+            _openedWindow = menu;
+            menu.SetActive(true);
+        }
+    }
+
+    public void OpenDefaultWindow()
+    {
+        if (_openedWindow != null)
+        {
+            _openedWindow.SetActive(false);
+            _openedWindow = null;
+        }
+
+        if (_menuWindows.TryGetValue(DefaultWindowName, out GameObject menuWindow))
+        {
+            _openedWindow = menuWindow;
+            menuWindow.SetActive(true);
+        }
+
+        _menuButtonLines.OpenButtonLine(_menuButtonLines.DefaultActiveLine);
+    }
+}
+
+public class MenuButtonLines : MonoBehaviour
+{
+    public Image DefaultActiveLine { get; private set; }
+
+    private InputActions _inputActions;
+
+    private Image[] _menuActiveLines;
+    private Image _activeLine;
+    private GameObject _menuUI;
+
+    private Coroutine _delayCoroutine;
+
+    private MenuButtonsCharacteristic _navigation;
+    private MenuManager _menuManager;
+    private Dictionary<int, string> _correctMenuWindowNames;
+    private int _maxMenuWindows;
+
+    private void Awake()
+    {        
+        _correctMenuWindowNames = new Dictionary<int, string>()
+        {
+            { 0, "Map" },
+            { 1, "Inventory" },
+            { 2, "Craft" },
+            { 3, "Skills" },
+            { 4, "Diary" },
+        };
+    }
+
+    private void Start()
+    {
+        DefaultActiveLine = _menuActiveLines[0];
+        _menuManager = GetComponent<MenuManager>();
+
+        _maxMenuWindows = _menuManager.MaxMenuWindows;
+        _navigation = new MenuButtonsCharacteristic(_maxMenuWindows);
+
+        _inputActions.Player.MenuMovement.started += StartMovingRoutine;
+        _inputActions.Player.MenuMovement.performed += Moving;
+        _inputActions.Player.MenuMovement.canceled += StopMovingRoutine;
+        _inputActions.Player.MenuInteraction.performed += _menuManager.OpenMenu;
+    }
+
+    public void Initialize(GameInput gameInput, Image[] menuActiveLines, GameObject menuUI)
+    {
+        _inputActions = gameInput.InputActions;
+        _menuActiveLines = menuActiveLines;
+        _menuUI = menuUI;
+    }
+
+    public void SetNewButtonLine(int index)
+    {
+        if (_navigation.CurrentPosition != index) _navigation.SetIndex(index);
+
+        if (_activeLine != null) _activeLine.enabled = false;
+
+        _activeLine = _menuActiveLines[index];
+
+        _activeLine.enabled = true;
+
+        if (_correctMenuWindowNames.TryGetValue(index, out string frameName))
+        {
+            _menuManager.OpenMenuWindow(frameName);
+        }
+    }
+
+    public void OpenButtonLine(Image buttonLineImage)
+    {
+        if (_activeLine != null)
+        {
+            _activeLine.enabled = false;
+        }
+
+        _activeLine = buttonLineImage;
+        _activeLine.enabled = true;
+    }
+
     private IEnumerator StartMoving(InputAction.CallbackContext context)
     {
-        if (!_mainMenuUI.activeInHierarchy)
+        if (!_menuUI.activeInHierarchy)
         {
             Debug.Log("Main menu not enabled!");
             yield break;
@@ -137,25 +243,25 @@ public class MenuButtonLines : MonoBehaviour
 
         yield return new WaitForSeconds(0.8f);
 
-        int currentPosition = _menuButtonsMovement.CurrentPosition;
+        int currentPosition = _navigation.CurrentPosition;
         string controlName = context.control.name;
 
-        if (_menuButtonsMovement.CurrentPosition >= MaxPosition && controlName == "rightArrow")
+        if (_navigation.CurrentPosition >= _maxMenuWindows && controlName == "rightArrow")
         {
             Debug.Log("Max out value, cannot continue!");
             yield break;
         }
 
-        if (_menuButtonsMovement.CurrentPosition == 0 && controlName == "leftArrow")
+        if (_navigation.CurrentPosition == 0 && controlName == "leftArrow")
         {
             Debug.Log("Min out value, cannot continue!");
             yield break;
         }
 
-        while (currentPosition < MaxPosition && currentPosition != 0)
+        while (currentPosition < _maxMenuWindows && currentPosition != 0)
         {
             Moving(context);
-            currentPosition = _menuButtonsMovement.CurrentPosition;
+            currentPosition = _navigation.CurrentPosition;
 
             yield return new WaitForSeconds(0.4f);
         }
@@ -179,7 +285,7 @@ public class MenuButtonLines : MonoBehaviour
 
     private void Moving(InputAction.CallbackContext context)
     {
-        if (!_mainMenuUI.activeInHierarchy)
+        if (!_menuUI.activeInHierarchy)
         {
             Debug.Log("Main menu not enabled!");
             return;
@@ -187,16 +293,16 @@ public class MenuButtonLines : MonoBehaviour
 
         string pressedKey = context.control.name;
 
-        if (pressedKey == "rightArrow") _menuButtonsMovement.MoveOn();
-        else if (pressedKey == "leftArrow") _menuButtonsMovement.MoveOff();
+        if (pressedKey == "rightArrow") _navigation.MoveOn();
+        else if (pressedKey == "leftArrow") _navigation.MoveOff();
 
-        int currentIndex = _menuButtonsMovement.CurrentPosition;
+        int currentIndex = _navigation.CurrentPosition;
 
-        SetNewMenu(currentIndex);
+        SetNewButtonLine(currentIndex);
 
-        Debug.Log($"Opened menu - {_currentOpenedMenu} her enabled - {_currentOpenedMenu.enabled}");
+        Debug.Log($"Opened menu - {_activeLine} her enabled - {_activeLine.enabled}");
 
-        Debug.Log($"Current position - {_menuButtonsMovement.CurrentPosition} of | {_menuButtonsMovement.MaxPosition}.");
+        Debug.Log($"Current position - {_navigation.CurrentPosition} of | {_navigation.MaxPosition}.");
     }
 
     private void OnDestroy()
@@ -204,6 +310,7 @@ public class MenuButtonLines : MonoBehaviour
         _inputActions.Player.MenuMovement.started -= StartMovingRoutine;
         _inputActions.Player.MenuMovement.performed -= Moving;
         _inputActions.Player.MenuMovement.canceled -= StopMovingRoutine;
+        _inputActions.Player.MenuInteraction.performed -= _menuManager.OpenMenu;
     }
 }
 
@@ -232,7 +339,7 @@ public class MenuButtonsManagement : MonoBehaviour
 
         int buttonIndex = _buttonsList.IndexOf(clickedButton);
 
-        _menuButtonLines.SetNewMenu(buttonIndex);
+        _menuButtonLines.SetNewButtonLine(buttonIndex);
 
         Debug.Log($"You clicked on {clickedButton.name}.");
     }
@@ -268,12 +375,12 @@ public class AnimationsConfigure : MonoBehaviour
 
 public class UIManager : MonoBehaviour
 {
-    [Header("Player Stats")]
+    [Header("Main Stats")]
     [SerializeField] private Slider healthSlider;
     [SerializeField] private Slider staminaSlider;
     [SerializeField] private float slidersUpdateSpeed = 3.0f;
     [SerializeField] private PlayerData playerData;
-    [SerializeField] private GameObject mainUI;
+    [SerializeField] private GameObject menuUI;
 
     [Header("Game Input")]
     [SerializeField] private GameInput gameInput;
@@ -285,10 +392,12 @@ public class UIManager : MonoBehaviour
     [Header("Lists")]
     [SerializeField] private Image[] menuActiveLines;
     [SerializeField] private List<Button> menuButtonsList;
+    [SerializeField] private List<GameObject> menuWindowsList;
 
     private SlidersData _receiverData;
     private BarSliders _barSliders;
     private AnimationsConfigure _animationsConfigure;
+    private MenuManager _menuManager;
     private MenuButtonLines _menuButtons;
     private MenuButtonsManagement _menuButtonsManagement;
 
@@ -304,9 +413,12 @@ public class UIManager : MonoBehaviour
 
         _barSliders = gameObject.AddComponent<BarSliders>();
         _animationsConfigure = gameObject.AddComponent<AnimationsConfigure>();
+
+        _menuManager = gameObject.AddComponent<MenuManager>();
         _menuButtons = gameObject.AddComponent<MenuButtonLines>();
         _menuButtonsManagement = gameObject.AddComponent<MenuButtonsManagement>();
 
+        // adding click to opening menu buttons
         foreach (Button button in menuButtonsList)
         {
             if (button == null) continue;
@@ -319,7 +431,7 @@ public class UIManager : MonoBehaviour
     {
         _barSliders.Initialize(_receiverData);
         _animationsConfigure.Initialize(playerData);
-        _menuButtons.Initialize(gameInput, menuActiveLines, mainUI);
+        _menuManager.Initialize(gameInput, menuActiveLines, menuUI, menuWindowsList);
         _menuButtonsManagement.Initialize(_menuButtons, menuButtonsList);
     }
 }
