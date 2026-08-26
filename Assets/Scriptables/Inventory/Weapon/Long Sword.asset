@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: Long Sword
+  m_EditorClassIdentifier: Assembly-CSharp::InventoryWeapon
+  ItemName: Long Sword
+  ItemDescription: "A double-edged blade of crucible steel, tapered to a lethal point.
+    Its leather-wrapped hilt and cruciform guard offer a perfect balance of speed
+    and power\u2014equally adept at cleaving through mail or finding the gap in a
+    plate's visor."
+  ItemImage: {fileID: 1974447273, guid: 07a9c105723866e42bda65f8073556ca, type: 3}
+  ItemType: 0
+  Damage: 30
+  AttackCooldown: 1.8
+  AttackDistance: 15
+  WeaponPrefab: {fileID: 0}
+  WeaponType: 1
