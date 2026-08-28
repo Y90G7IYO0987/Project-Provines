@@ -7,36 +7,30 @@ public struct PhysicsParameters
     public float MoveSpeed;
 }
 
-public class PlayerCharacteristic
-{
-    public PlayerCharacteristic()
-    {
-
-    }
-}
-
 public class PlayerPhysics : MonoBehaviour
 {
-    private Vector3 _moveDirection;
+    public Vector3 MoveDirection { get; private set; }
     private CharacterController _characterController;
     private float _movementSpeed;
     private float _verticalSpeed;
-    private float _jumpHeight = 0.85f;
+    private float _jumpHeight = 1.1f;
+    private float _runMultiplier = 1f;
+    private bool _isRunning;
+    private bool _isGrounded;
 
     private const float _gravity = -9.81f;
     private const float _groundGravity = -2f;
 
-    public void Jump(InputAction.CallbackContext context)
-    {
-        if (!_characterController.isGrounded) return;
-
-        _verticalSpeed = Mathf.Sqrt(-2f * _gravity * _jumpHeight);
-    }
+    public bool IsPlayerRunning() => _isRunning;
+    public bool IsGroundedPlayer() => _isGrounded;
 
     private void Update()
     {
-        Vector3 horizontalSpeed = (transform.right * _moveDirection.x + transform.forward * _moveDirection.z) * _movementSpeed;
-        
+        _isGrounded = _characterController.isGrounded;
+        Debug.Log($"Is grounded - {_isGrounded}.");
+
+        Vector3 horizontalSpeed = (transform.right * MoveDirection.x + transform.forward * MoveDirection.z) * (_movementSpeed * _runMultiplier);
+
         if (_characterController.isGrounded && _verticalSpeed < 0)
         {
             _verticalSpeed = _groundGravity;
@@ -49,17 +43,36 @@ public class PlayerPhysics : MonoBehaviour
         _characterController.Move(moveVector * Time.deltaTime);
     }
 
-    public void SetMoveDirection(InputAction.CallbackContext context)
-    {
-        Vector2 inputVector = context.ReadValue<Vector2>();
-        _moveDirection = new Vector3(inputVector.x, 0f, inputVector.y);
-    }
-
     public void Initialize(PhysicsParameters physicsParameters)
     {
         _movementSpeed = physicsParameters.MoveSpeed;
         _characterController = physicsParameters.CharacterController;
     }
+
+    public void Jump(InputAction.CallbackContext context)
+    {
+        if (!_characterController.isGrounded) return;
+
+        _verticalSpeed = Mathf.Sqrt(-2f * _gravity * _jumpHeight);
+    }
+
+    public void Run(InputAction.CallbackContext context)
+    {
+        _isRunning = true;
+        _runMultiplier /= 0.5f;
+    }
+
+    public void StopRunning(InputAction.CallbackContext context)
+    {
+        _isRunning = false;
+        _runMultiplier = 1f;
+    }
+
+    public void SetMoveDirection(InputAction.CallbackContext context)
+    {
+        Vector2 inputVector = context.ReadValue<Vector2>();
+        MoveDirection = new Vector3(inputVector.x, 0f, inputVector.y);
+    }    
 }
 
 public class Player : MonoBehaviour
@@ -67,6 +80,7 @@ public class Player : MonoBehaviour
     [SerializeField] private GameInput _gameInput;
     [SerializeField] private float _moveSpeed = 3.0f;
     [SerializeField] private PlayerData playerData;
+    [SerializeField] private GameObject mainCamera;
 
     private InputActions _inputActions;
     private PlayerPhysics _playerPhysics;
@@ -93,8 +107,25 @@ public class Player : MonoBehaviour
 
         _playerPhysics.Initialize(_physicsParameters);
 
+        GameObject camera = Instantiate(mainCamera, transform.parent);
+        var cameraMovement = camera.GetComponent<CameraMovement>();
+        cameraMovement.SetPlayerData(playerData);
+
         _inputActions.Player.Move.performed += _playerPhysics.SetMoveDirection;
         _inputActions.Player.Move.canceled += _playerPhysics.SetMoveDirection;
         _inputActions.Player.Jump.performed += _playerPhysics.Jump;
+
+        _inputActions.Player.Run.performed += _playerPhysics.Run;
+        _inputActions.Player.Run.canceled += _playerPhysics.StopRunning;
+    }
+
+    private void OnDestroy()
+    {
+        _inputActions.Player.Move.performed -= _playerPhysics.SetMoveDirection;
+        _inputActions.Player.Move.canceled -= _playerPhysics.SetMoveDirection;
+        _inputActions.Player.Jump.performed -= _playerPhysics.Jump;
+
+        _inputActions.Player.Run.performed -= _playerPhysics.Run;
+        _inputActions.Player.Run.canceled -= _playerPhysics.StopRunning;
     }
 }
