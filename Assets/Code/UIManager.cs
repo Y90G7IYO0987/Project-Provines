@@ -350,29 +350,6 @@ public class ArrowsManagement : MonoBehaviour
     // Here wrote arrows animations
 }
 
-public class AnimationsConfigure : MonoBehaviour
-{
-    public readonly int RunningHash = Animator.StringToHash(Running);
-
-    private Animator _animator;
-    private PlayerData _playerData;
-
-    private const string Running = "IsRunning";
-    private bool _isRunning;
-
-    private void Update()
-    {
-        _animator.SetBool(RunningHash, _isRunning);
-    }
-
-    public void Initialize(PlayerData playerData)
-    {
-        _playerData = playerData;
-        _animator = playerData.Animator;
-        _isRunning = _playerData.IsRunning;
-    }
-}
-
 public class UIManager : MonoBehaviour
 {
     [Header("Main Stats")]
@@ -396,7 +373,6 @@ public class UIManager : MonoBehaviour
 
     private SlidersData _receiverData;
     private BarSliders _barSliders;
-    private AnimationsConfigure _animationsConfigure;
     private MenuManager _menuManager;
     private MenuButtonLines _menuButtons;
     private MenuButtonsManagement _menuButtonsManagement;
@@ -412,7 +388,6 @@ public class UIManager : MonoBehaviour
         };
 
         _barSliders = gameObject.AddComponent<BarSliders>();
-        _animationsConfigure = gameObject.AddComponent<AnimationsConfigure>();
 
         _menuManager = gameObject.AddComponent<MenuManager>();
         _menuButtons = gameObject.AddComponent<MenuButtonLines>();
@@ -430,7 +405,6 @@ public class UIManager : MonoBehaviour
     private void Start()
     {
         _barSliders.Initialize(_receiverData);
-        _animationsConfigure.Initialize(playerData);
         _menuManager.Initialize(gameInput, menuActiveLines, menuUI, menuWindowsList);
         _menuButtonsManagement.Initialize(_menuButtons, menuButtonsList);
     }
