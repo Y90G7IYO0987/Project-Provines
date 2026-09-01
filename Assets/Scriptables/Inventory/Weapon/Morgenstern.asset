@@ -9,16 +9,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: b90289aad9ca7a34ca5cf89f8250cb60, type: 3}
   m_Name: Morgenstern
-  m_EditorClassIdentifier: Assembly-CSharp::InventoryWeapon
+  m_EditorClassIdentifier: 
   ItemName: Morgenstern
   ItemDescription: "A steel-shod haft crowned with a spiked iron head, its flanges
     designed to crack plate and shatter bone. It requires no finesse\u2014only fury."
-  ItemImage: {fileID: -1425211147, guid: 07a9c105723866e42bda65f8073556ca, type: 3}
+  ItemImage: {fileID: 1680847825, guid: 07a9c105723866e42bda65f8073556ca, type: 3}
   ItemType: 0
-  Damage: 15
-  AttackCooldown: 0.5
-  AttackDistance: 6
+  Damage: 32
+  AttackCooldown: 0.7
+  AttackDistance: 7
   WeaponPrefab: {fileID: 0}
   WeaponType: 1

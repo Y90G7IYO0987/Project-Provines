@@ -9,17 +9,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: b90289aad9ca7a34ca5cf89f8250cb60, type: 3}
   m_Name: Trident
-  m_EditorClassIdentifier: Assembly-CSharp::InventoryWeapon
+  m_EditorClassIdentifier: 
   ItemName: Trident
   ItemDescription: "A three-pronged spear of forged bronze, its central tine longer
     and deadlier than the rest. Wrapped in salt-cured leather, it smells of brine
     and blood\u2014equally at home in the surf or on the deck of a raiding longship."
-  ItemImage: {fileID: -425532222, guid: 07a9c105723866e42bda65f8073556ca, type: 3}
+  ItemImage: {fileID: -1405100465, guid: 07a9c105723866e42bda65f8073556ca, type: 3}
   ItemType: 0
-  Damage: 19
-  AttackCooldown: 1.25
-  AttackDistance: 9.5
+  Damage: 50
+  AttackCooldown: 1.1
+  AttackDistance: 11.5
   WeaponPrefab: {fileID: 0}
   WeaponType: 1

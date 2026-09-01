@@ -9,17 +9,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: b90289aad9ca7a34ca5cf89f8250cb60, type: 3}
   m_Name: Spear
-  m_EditorClassIdentifier: Assembly-CSharp::InventoryWeapon
+  m_EditorClassIdentifier: 
   ItemName: Spear
   ItemDescription: A stout wooden haft tipped with a leaf-shaped blade of honed steel.
     Its balance speaks of countless drills, and its point promises a single, decisive
     end.
-  ItemImage: {fileID: -1160369159, guid: 07a9c105723866e42bda65f8073556ca, type: 3}
+  ItemImage: {fileID: -2040130624, guid: 07a9c105723866e42bda65f8073556ca, type: 3}
   ItemType: 0
-  Damage: 13
-  AttackCooldown: 0.95
-  AttackDistance: 8
+  Damage: 35
+  AttackCooldown: 0.68
+  AttackDistance: 10
   WeaponPrefab: {fileID: 0}
   WeaponType: 1
