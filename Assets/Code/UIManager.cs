@@ -4,43 +4,13 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-public struct SlidersData
+public struct MenuInformation
 {
-    public Slider HealthSlider;
-    public Slider StaminaSlider;
-    public PlayerData PlayerData;
-    public float SlidersUpdateSpeed;
-}
-
-public class BarSliders : MonoBehaviour
-{
-    private Slider _healthSlider;
-    private Slider _staminaSlider;
-    private PlayerData _playerData;
-
-    private float _slidersUpdateSpeed;
-    private bool _isHealthUpdated;
-    private bool _isStaminaUpdated;
-
-    private void Update()
-    {
-        _isHealthUpdated = _healthSlider.value != _playerData.CurrentHealth ? true : false;
-        _isStaminaUpdated = _staminaSlider.value != _playerData.CurrentStamina ? true : false;
-
-        if (_isHealthUpdated) _healthSlider.value = Mathf.MoveTowards(_healthSlider.value, _playerData.CurrentHealth, Time.deltaTime * _slidersUpdateSpeed);
-
-        if (_isStaminaUpdated) _staminaSlider.value = Mathf.MoveTowards(_staminaSlider.value, _playerData.CurrentStamina, Time.deltaTime * _slidersUpdateSpeed);
-
-        if (_isHealthUpdated || _isStaminaUpdated) Debug.Log($"Some sliders updated: \n\n Current slider values:\n\n Health Slider value -> {_healthSlider.value},\n\n Stamina Slider value -> {_staminaSlider.value}.");
-    }
-
-    public void Initialize(SlidersData slidersData)
-    {
-        _healthSlider = slidersData.HealthSlider;
-        _staminaSlider = slidersData.StaminaSlider;
-        _playerData = slidersData.PlayerData;
-        _slidersUpdateSpeed = slidersData.SlidersUpdateSpeed;
-    }
+    public GameInput GameInput;
+    public Image[] MenuActiveLines;
+    public GameObject MenuUI;
+    public List<GameObject> MenuWindows;
+    public List<RectTransform> OtherUI;
 }
 
 public class MenuButtonsCharacteristic
@@ -81,21 +51,24 @@ public class MenuManager : MonoBehaviour
 
     private List<GameObject> _menuWindowsList;
     private Dictionary<string, GameObject> _menuWindows;
+    private List<RectTransform> _otherUI;
+
     private GameObject _openedWindow;
     private MenuButtonLines _menuButtonLines;
 
     private const string DefaultWindowName = "Map";    
 
-    public void Initialize(GameInput gameInput, Image[] menuActiveLines, GameObject menuUI, List<GameObject> menuWindows)
+    public void Initialize(MenuInformation menuInfo)
     {
-        MenuUI = menuUI;
-        MenuActiveLines = menuActiveLines;
+        MenuUI = menuInfo.MenuUI;
+        MenuActiveLines = menuInfo.MenuActiveLines;
 
-        _menuWindowsList = menuWindows;
+        _menuWindowsList = menuInfo.MenuWindows;
         _menuWindows = new Dictionary<string, GameObject>();
 
         MaxMenuWindows = _menuWindowsList.Count;
         MenuButtonsMovement = new MenuButtonsCharacteristic(MaxMenuWindows);
+        _otherUI = menuInfo.OtherUI;
 
         foreach (GameObject menuWindow in _menuWindowsList)
         {
@@ -106,7 +79,7 @@ public class MenuManager : MonoBehaviour
 
         _menuButtonLines = GetComponent<MenuButtonLines>();
 
-        _menuButtonLines.Initialize(gameInput, MenuActiveLines, MenuUI);
+        _menuButtonLines.Initialize(menuInfo.GameInput, MenuActiveLines, MenuUI);
     }
 
     public void OpenMenu(InputAction.CallbackContext context)
@@ -119,8 +92,15 @@ public class MenuManager : MonoBehaviour
 
         _lastOpenedMenu = Time.time;
 
-        MenuUI.SetActive(!MenuUI.activeInHierarchy);      
-        
+        foreach (RectTransform ui in _otherUI)
+        {
+            if (ui == null) continue;
+
+            ui.gameObject.SetActive(MenuUI.activeInHierarchy);
+        }
+
+        MenuUI.SetActive(!MenuUI.activeInHierarchy);                      
+
         if (MenuUI.activeInHierarchy) OpenDefaultWindow();
     }
 
@@ -370,28 +350,27 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Image[] menuActiveLines;
     [SerializeField] private List<Button> menuButtonsList;
     [SerializeField] private List<GameObject> menuWindowsList;
+    [SerializeField] private List<RectTransform> otherUI;
 
-    private SlidersData _receiverData;
-    private BarSliders _barSliders;
     private MenuManager _menuManager;
     private MenuButtonLines _menuButtons;
     private MenuButtonsManagement _menuButtonsManagement;
+    private MenuInformation _menuInformation;
 
     private void Awake()
     {
-        _receiverData = new SlidersData
-        {
-            HealthSlider = healthSlider,
-            StaminaSlider = staminaSlider,
-            SlidersUpdateSpeed = slidersUpdateSpeed,
-            PlayerData = playerData
-        };
-
-        _barSliders = gameObject.AddComponent<BarSliders>();
-
         _menuManager = gameObject.AddComponent<MenuManager>();
         _menuButtons = gameObject.AddComponent<MenuButtonLines>();
         _menuButtonsManagement = gameObject.AddComponent<MenuButtonsManagement>();
+
+        _menuInformation = new MenuInformation()
+        {
+            GameInput = gameInput,
+            MenuActiveLines = menuActiveLines,
+            MenuUI = menuUI,
+            MenuWindows = menuWindowsList,
+            OtherUI = otherUI
+        };
 
         // adding click to opening menu buttons
         foreach (Button button in menuButtonsList)
@@ -404,8 +383,7 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
-        _barSliders.Initialize(_receiverData);
-        _menuManager.Initialize(gameInput, menuActiveLines, menuUI, menuWindowsList);
+        _menuManager.Initialize(_menuInformation);
         _menuButtonsManagement.Initialize(_menuButtons, menuButtonsList);
     }
 }
