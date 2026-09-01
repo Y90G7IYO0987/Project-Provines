@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -12,10 +11,14 @@ public enum EntityMovingStates
 
 public class EntityController : MonoBehaviour
 {
-    [SerializeField] public float MaxEntityStamina = 100.0f;
+    private readonly int IdleHash = Animator.StringToHash("Idle");
+    private readonly int MovementHash = Animator.StringToHash("Movement");
+    private readonly int ChasingHash = Animator.StringToHash("Chasing");
+    private readonly int AttackingHash = Animator.StringToHash("Attacking");
 
     [Header("Main Stats")]
     [SerializeField] private PlayerData playerData;
+    [SerializeField] private EntityData entityData;
     [SerializeField] private float chasingDistance = 10.0f;
     [SerializeField] private float attackDistance = 2.0f;
     [SerializeField] private float movementRadius = 15f;
@@ -23,30 +26,33 @@ public class EntityController : MonoBehaviour
     [SerializeField] private float stayingTime = 5.0f;
     [SerializeField] private float targetReachDistance = 1f;
     [SerializeField] private float differenceStaminaTime = 1f;
-    [SerializeField] private float changingStaminaCount = 5f;
-    [SerializeField] private float regeningStaminaAmount = 8.0f;
-    [SerializeField] private EntityMovingStates startEntityState;
-    [SerializeField] private bool isFriendly = true;
-    [SerializeField] private bool isChasing = false;
 
     private NavMeshAgent _agent;
     private Transform _playerTransform;
+    private EntityVisual _entityVisual;
+
+    private bool _isFriendly;
+    private bool _isChasing;
+
     private string _currentState;
     private string _defaultState;
     private bool _isStaying;
     private float _lastStaminaChangesTime;
-    private float _currentEntityStamina;
-    private bool _isStaminaRegening;
 
+    public void SetStayingState(bool isEntityStaying) => _isStaying = isEntityStaying;
+    public void ResetAgentPath() => _agent.ResetPath();
     private float CalculateDistance(Vector3 startPoint, Vector3 targetPoint) => Vector3.Distance(startPoint, targetPoint);
 
     private void Awake()
     {
         _agent = GetComponent<NavMeshAgent>();
+        _entityVisual = GetComponent<EntityVisual>();
 
-        _currentState = startEntityState.ToString();
-        _defaultState = EntityMovingStates.Movement.ToString();
-        _currentEntityStamina = MaxEntityStamina;
+        _currentState = entityData.StartEntityState.ToString();
+        _defaultState = "Movement";
+
+        _isFriendly = entityData.IsFriendlyEntity;
+        _isChasing = entityData.IsChasingEntity;
 
         Debug.Log($"Start entity state - {_currentState}");
     }
@@ -61,39 +67,7 @@ public class EntityController : MonoBehaviour
         EntityStateActions();
     }
 
-    private void EntityStateActions()
-    {
-        switch (_currentState)
-        {
-            case "Idle":
-                Debug.LogWarning("Idle condition");
-                // мб допишу здесь поворот сущности к игроку.
-                break;
-            case "Movement":
-                if (Time.time - _lastStaminaChangesTime > differenceStaminaTime)
-                {
-                    ChangeStamina(changingStaminaCount);
-                    _lastStaminaChangesTime = Time.time;
-                }
-
-                if (_currentEntityStamina > 0f) EntityMovement();
-
-                SwitchEntityStates();
-                break;
-            case "Chasing":
-                Debug.Log("Now - Chasing state!");
-                EntityChasing();
-                SwitchEntityStates();
-                break;
-            case "Attacking":
-                Debug.Log("Now - Attacking state!");
-                EntityAttacking();
-                SwitchEntityStates();
-                break;
-        }
-    }
-
-    private void SwitchEntityStates()
+    public void SwitchEntityStates()
     {
         float distanceToPlayer = CalculateDistance(_playerTransform.position, transform.position);
 
@@ -109,26 +83,46 @@ public class EntityController : MonoBehaviour
         if (_isStaying && newState == _defaultState) newState = "Idle";
 
         _currentState = newState;
-    }    
+    }
 
-    private void ChangeStamina(float changeCount)
+    private void EntityStateActions()
     {
-        if (_isStaminaRegening) return;
+        int incomingHash = Animator.StringToHash(_currentState);
 
-        if (_currentEntityStamina == 0f)
+        switch (incomingHash)
         {
-            StartCoroutine(RegenStaminaRoutine());
+            case int when incomingHash == IdleHash:
+                // мб допишу здесь поворот сущности к игроку.
+                break;
+            case int when incomingHash == MovementHash:
+                if (Time.time - _lastStaminaChangesTime > differenceStaminaTime)
+                {
+                    _entityVisual.ChangeStamina();
+                    _lastStaminaChangesTime = Time.time;
+                }
 
-            return;
+                float currentStamina = _entityVisual.GetCurrentStamina();
+
+                if (currentStamina > 0f) EntityMovement();
+
+                SwitchEntityStates();
+                break;
+            case int when incomingHash == ChasingHash:
+                Debug.Log("Now - Chasing state!");
+                EntityChasing();
+                SwitchEntityStates();
+                break;
+            case int when incomingHash == AttackingHash:
+                Debug.Log("Now - Attacking state!");
+                EntityAttacking();
+                SwitchEntityStates();
+                break;
         }
-
-        _currentEntityStamina -= changeCount;
-        _currentEntityStamina = Mathf.Clamp(_currentEntityStamina, 0f, MaxEntityStamina);        
     }
 
     private void EntityChasing()
     {
-        if (!isChasing) return;
+        if (!_isChasing) return;
 
         Debug.Log("Chasing to player!");
         _agent.SetDestination(_playerTransform.position);
@@ -136,7 +130,7 @@ public class EntityController : MonoBehaviour
 
     private void EntityAttacking()
     {
-        if (isFriendly) return;
+        if (_isFriendly) return;
 
         Debug.Log("Attacking player!");
         _agent.ResetPath();
@@ -146,11 +140,10 @@ public class EntityController : MonoBehaviour
     {
         if (!_agent.hasPath || _agent.velocity.sqrMagnitude == 0f)
         {
-            Debug.Log("Can set new path!");
             Vector3 target = GetMovementPosition(transform.position, movementRadius, maxMovingAngle);
             _agent.SetDestination(target);
         }
-    }    
+    }
 
     private Vector3 GetMovementPosition(Vector3 center, float radius, float maxAngle)
     {
@@ -167,24 +160,5 @@ public class EntityController : MonoBehaviour
         }
 
         return targetPosition;
-    }
-
-    private IEnumerator RegenStaminaRoutine()
-    {
-        _isStaminaRegening = true;
-        _isStaying = true;
-        _agent.ResetPath();
-        
-        while (_currentEntityStamina < MaxEntityStamina)
-        {
-            _currentEntityStamina += (regeningStaminaAmount * Time.deltaTime);
-
-            yield return new WaitForSeconds(0.4f);
-        }
-
-        _currentEntityStamina = Mathf.Clamp(_currentEntityStamina, 0f, MaxEntityStamina);
-        _isStaminaRegening = false;
-        _isStaying = false;
-        SwitchEntityStates();
     }
 }
