@@ -17,6 +17,9 @@ namespace ProjectProvines.Core.Player
         private float _verticalSpeed;
         private float _runMultiplier = 1f;
         private bool _isGrounded;
+        private bool _isRunning;
+
+        private float _requiredStartSpeed = 0.12f;
 
         public PlayerCore(float moveSpeed, float jumpHeight, float gravity = -9.81f, float groundGravity = -2f)
         {
@@ -57,11 +60,13 @@ namespace ProjectProvines.Core.Player
         public void StartRunning()
         {
             _runMultiplier = 2f;
+            _isRunning = true;
         }
 
         public void StopRunning()
         {
             _runMultiplier = 1f;
+            _isRunning = false;
         }
 
         /// <summary>
@@ -81,5 +86,7 @@ namespace ProjectProvines.Core.Player
         {
             _moveDirection = direction;
         }
+
+        public bool IsPlayerRunning() => _isRunning && _moveDirection.magnitude > _requiredStartSpeed;
     }
 }
