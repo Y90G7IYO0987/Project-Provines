@@ -6,14 +6,17 @@ namespace ProjectProvines.Core.Utils
     {
         private readonly PlayerInputController _playerInput;
         private readonly CameraController _cameraController;
+        private readonly UnityInputControls _inputControls;
 
-        public PlayerUtils(PlayerInputController input, CameraController camera)
+        public PlayerUtils(PlayerInputController input, CameraController camera, UnityInputControls inputControls)
         {
             _playerInput = input;
             _cameraController = camera;
+            _inputControls = inputControls;
         }
 
         public PlayerInputController GetPlayerInput() => _playerInput;
         public CameraController GetCameraController() => _cameraController;
+        public UnityInputControls GetInputControls() => _inputControls;
     }
 }
