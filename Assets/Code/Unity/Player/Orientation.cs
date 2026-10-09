@@ -15,6 +15,7 @@ namespace ProjectProvines.Unity.Player
             _orientationCore = new OrientationCore(rotationSpeed, transform.eulerAngles.y, _smoothTime);
         }
 
+        // Описывает плавное вращение персонажа.
         public void RotateTowards(Vector3 direction)
         {
             if (direction.sqrMagnitude < 0.01f) return;
