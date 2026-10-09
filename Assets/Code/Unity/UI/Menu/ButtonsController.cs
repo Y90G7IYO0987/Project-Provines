@@ -69,6 +69,7 @@ namespace ProjectProvines.Unity.UI
         {
             if (buttons.Contains(button))
                 return buttons.IndexOf(button);
+
             return StartPosition;
         }
 
@@ -94,6 +95,7 @@ namespace ProjectProvines.Unity.UI
             {
                 if (_openedScreen != null)
                     _openedScreen.SetActive(false);
+
                 screen.SetActive(true);
                 _openedScreen = screen;
             }
@@ -109,6 +111,7 @@ namespace ProjectProvines.Unity.UI
             {
                 if (_activeSlide != null)
                     _activeSlide.enabled = false;
+
                 _activeSlide = slideImage;
                 slideImage.enabled = true;
             }
