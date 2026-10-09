@@ -25,6 +25,8 @@ namespace ProjectProvines.Unity.UI
         private string _itemGuid;
         private bool _isAnimate;
 
+        public string GetItemGuid() => _itemGuid;
+
         private void Awake()
         {
             _itemImage = GetComponent<Image>();
