@@ -29,6 +29,8 @@ namespace ProjectProvines.Unity.UI
 
         private List<Image> _createdItems = new List<Image>();
 
+        public SelectedItemData GetItemData() => _selectedItemData;
+
         private void Awake()
         {
             _selectedItemData = new SelectedItemData();
@@ -40,6 +42,9 @@ namespace ProjectProvines.Unity.UI
             }
         }        
 
+        // Создает предмет.
+        // Ставит и записывает основные параметры
+        // Подключает нужный класс.
         public void CreateNewItem(CellData itemData)
         {
             var newItem = Instantiate(itemPrefab, itemsContainer.transform);
