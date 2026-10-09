@@ -1,4 +1,6 @@
+using ProjectProvines.Core.Player;
 using ProjectProvines.Core.Utils;
+using ProjectProvines.Unity.Camera;
 using ProjectProvines.Unity.Input;
 using UnityEngine;
 
@@ -13,6 +15,7 @@ namespace ProjectProvines.Unity.Player
         [SerializeField] private UnityInputControls inputControls;
 
         private PlayerUtils _playerUtils;
+        private PlayerProperties _playerProperties;
 
         private void Awake()
         {
@@ -24,9 +27,11 @@ namespace ProjectProvines.Unity.Player
         /// </summary>
         private void Initialize()
         {
+            _playerProperties = new PlayerProperties(playerData.MaxHealth, playerData.MaxMagic, playerData.MaxStamina);
+
             var player = Instantiate(playerPrefab, transform.parent);
             playerData.Prefab = player;
-            _playerUtils = new PlayerUtils(playerInput, cameraController, inputControls);
+            _playerUtils = new PlayerUtils(playerInput, cameraController, inputControls, _playerProperties);
             playerData.PlayerUtils = _playerUtils;
         }
     }
