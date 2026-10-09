@@ -11,6 +11,9 @@ namespace ProjectProvines.Unity.Input
         /// </summary>
         public event Action<int> OnMenuSwitchers;
 
+        public event Action OnCellEquipping;
+        public event Action OnCellStopHolding;
+
         [SerializeField] private UnityInputControls inputControls;
 
         private PlayerControls _playerControls;
@@ -20,6 +23,9 @@ namespace ProjectProvines.Unity.Input
             _playerControls = inputControls.GetPlayerControls();
 
             _playerControls.UI.MenuSwitch.performed += OnMenuSwitch;
+
+            _playerControls.UI.ItemEquipping.performed += OnCellInput;
+            _playerControls.UI.StopHoldingCell.performed += OnStopCellInput;
         }
 
         /// <summary>
@@ -31,9 +37,21 @@ namespace ProjectProvines.Unity.Input
             OnMenuSwitchers?.Invoke(context.control.name == "rightArrow" ? 1 : -1);
         }
 
+        private void OnCellInput(InputAction.CallbackContext context)
+        {
+            OnCellEquipping?.Invoke();
+        }
+
+        private void OnStopCellInput(InputAction.CallbackContext context)
+        {
+            OnCellStopHolding?.Invoke();
+        }
+
         private void OnDestroy()
         {
             _playerControls.UI.MenuSwitch.performed -= OnMenuSwitch;
+            _playerControls.UI.ItemEquipping.performed -= OnCellInput;
+            _playerControls.UI.StopHoldingCell.performed -= OnStopCellInput;
         }
     }
 }
