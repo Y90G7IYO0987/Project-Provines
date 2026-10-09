@@ -2,23 +2,27 @@ using ProjectProvines.Core.Utils;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class UIManager : MonoBehaviour
+namespace ProjectProvines.Unity.UI
 {
-    [SerializeField] private PlayerData playerData;
-
-    private PlayerUtils _playerUtils;
-    private PlayerControls _playerControls;
-
-    private void Start()
+    public class UIManager : MonoBehaviour
     {
-        _playerUtils = playerData.PlayerUtils;
-        _playerControls = _playerUtils.GetInputControls().GetPlayerControls();
+        [SerializeField] private PlayerData playerData;
+        [SerializeField] private GameObject menuView;
 
-        _playerControls.UI.OpenMenu.performed += OpenMenu;
-    }
+        private PlayerUtils _playerUtils;
+        private PlayerControls _playerControls;
 
-    private void OpenMenu(InputAction.CallbackContext context)
-    {
-        gameObject.SetActive(!gameObject.activeInHierarchy);
+        private void Start()
+        {
+            _playerUtils = playerData.PlayerUtils;
+            _playerControls = _playerUtils.GetInputControls().GetPlayerControls();
+
+            _playerControls.UI.OpenMenu.performed += OpenMenu;
+        }
+
+        private void OpenMenu(InputAction.CallbackContext context)
+        {
+            menuView.SetActive(!menuView.activeInHierarchy);
+        }
     }
 }
