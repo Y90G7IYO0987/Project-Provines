@@ -1,8 +1,14 @@
-using ProjectProvines.Core.Camera;
-using UnityEngine;
-
-namespace ProjectProvines.Unity.Camera
+п»їnamespace ProjectProvines.Unity.Camera
 {
+    using ProjectProvines.Core.Camera;
+    using ProjectProvines.Unity.Scriptables;
+    using UnityEngine;
+
+    /// <summary>
+    /// Controls the cameraвЂ™s main functions.
+    /// It connects the camera core to Unity.
+    /// </summary>
+    [RequireComponent(typeof(PlayerData))]
     public class CameraController : MonoBehaviour
     {
         [Header("Target")]
@@ -39,6 +45,9 @@ namespace ProjectProvines.Unity.Camera
         private Vector3 _smoothVelocity;
         private float _lastMouseInputTime;
 
+        /// <summary>
+        /// Initialization of the camera core
+        /// </summary>
         private void Awake()
         {
             Vector3 angles = transform.eulerAngles;
@@ -57,6 +66,9 @@ namespace ProjectProvines.Unity.Camera
             HandleZoom();
         }
 
+        /// <summary>
+        /// Combines the main functions of the camera.
+        /// </summary>
         private void LateUpdate()
         {
             if (_target == null)
@@ -68,14 +80,14 @@ namespace ProjectProvines.Unity.Camera
         }
 
         /// <summary>
-        /// Вращение камеры от зажатой ПКМ.
+        /// Camera rotation while holding down the rightвЂ‘mouse button.
         /// </summary>
         private void HandleRotation()
         {
-            if (!UnityEngine.Input.GetMouseButton(1)) return;
+            if (!Input.GetMouseButton(1)) return;
 
-            float mouseX = UnityEngine.Input.GetAxis("Mouse X") * mouseSensitivity;
-            float mouseY = UnityEngine.Input.GetAxis("Mouse Y") * mouseSensitivity;
+            float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
+            float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
 
             if (Mathf.Abs(mouseX) > 0.01f || Mathf.Abs(mouseY) > 0.01f)
                 _lastMouseInputTime = Time.time;
@@ -85,18 +97,18 @@ namespace ProjectProvines.Unity.Camera
         }
 
         /// <summary>
-        /// Зум колесиком мыши.
+        /// Zoom with the mouse wheel.
         /// </summary>
         private void HandleZoom()
         {
-            float scroll = UnityEngine.Input.GetAxis("Mouse ScrollWheel");
+            float scroll = Input.GetAxis("Mouse ScrollWheel");
             if (Mathf.Abs(scroll) < 0.01f) return;
 
             _cameraCore.Zoom(scroll, minDistance, maxDistance, zoomSpeed);
         }
 
         /// <summary>
-        /// Проверка коллизий: если между игроком и камерой стена, подъезжаем ближе.
+        /// Collision check: if thereвЂ™s a wall between the player and the camera, move closer.
         /// </summary>
         private void HandleCollision()
         {
@@ -117,7 +129,7 @@ namespace ProjectProvines.Unity.Camera
         }
 
         /// <summary>
-        /// Поворот и просмотр камеры за игроком.
+        /// Turning and viewing the camera behind the player.
         /// </summary>
         private void HandlePosition()
         {
@@ -130,7 +142,7 @@ namespace ProjectProvines.Unity.Camera
         }
 
         /// <summary>
-        /// Медленно доворачивает камеру за спину персонажа.
+        /// Slowly turns the camera behind the character.
         /// </summary>
         private void AutoFollow()
         {
@@ -148,4 +160,3 @@ namespace ProjectProvines.Unity.Camera
         }
     }
 }
-

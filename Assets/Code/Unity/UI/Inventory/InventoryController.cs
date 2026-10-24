@@ -1,4 +1,5 @@
 using ProjectProvines.Core.UI;
+using ProjectProvines.Unity.Scriptables;
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -6,16 +7,10 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace ProjectProvines.Unity.UI
-{
-    public struct ActionsData
-    {
-        public TextMeshProUGUI TitleText;
-        public TextMeshProUGUI NameText;
-        public CellData ItemData;
-        public SelectedItemData SelectedItemData;
-        public string ItemGuid;
-    }
-
+{    
+    /// <summary>
+    /// Combines the main components to ensure the proper operation of the inventory.
+    /// </summary>
     public class InventoryController : MonoBehaviour
     {
         [SerializeField] private List<CellData> playerCells;
@@ -31,6 +26,8 @@ namespace ProjectProvines.Unity.UI
 
         public SelectedItemData GetItemData() => _selectedItemData;
 
+        public List<Image> GetInventoryItems() => _createdItems;
+
         private void Awake()
         {
             _selectedItemData = new SelectedItemData();
@@ -40,11 +37,14 @@ namespace ProjectProvines.Unity.UI
                 var item = playerCells[i];
                 CreateNewItem(item);
             }
-        }        
+        }
 
-        // Создает предмет.
-        // Ставит и записывает основные параметры
-        // Подключает нужный класс.
+        /// <summary>
+        /// Creates an object.
+        /// Sets and records the main parameters.
+        /// It connects the required class.
+        /// </summary>
+        /// <param name="itemData">Abstract class of the subject.</param>
         public void CreateNewItem(CellData itemData)
         {
             var newItem = Instantiate(itemPrefab, itemsContainer.transform);
@@ -72,19 +72,12 @@ namespace ProjectProvines.Unity.UI
         }
 
         /// <summary>
-        /// Создает уникальный идентификатор.
+        /// Creates a unique key.
         /// </summary>
-        /// <returns>Новый гид.</returns>
+        /// <returns>Unique key.</returns>
         private string CreateNewGuid()
         {
             return Guid.NewGuid().ToString();
         }
-
-        /// <returns>Возвращает созданные ячейки инвентаря в виде листа.</returns>
-        public List<Image> GetInventoryItems()
-        {
-            Debug.Log($"Count: {_createdItems.Count}");
-            return _createdItems;
-        }
-    }    
+    }
 }

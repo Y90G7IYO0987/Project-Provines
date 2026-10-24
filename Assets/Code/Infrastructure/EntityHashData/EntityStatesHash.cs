@@ -2,6 +2,9 @@ using UnityEngine;
 
 namespace ProjectProvines.Core.Infrastructure
 {
+    /// <summary>
+    /// A class containing the main hashes for the entity.
+    /// </summary>
     public static class EntityStatesHash
     {
         public static readonly int Idle = Animator.StringToHash("Idle");

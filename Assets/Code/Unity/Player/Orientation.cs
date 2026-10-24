@@ -3,19 +3,24 @@ using UnityEngine;
 
 namespace ProjectProvines.Unity.Player
 {
+    /// <summary>
+    /// The main handler for player rotation actions.
+    /// </summary>
     public class Orientation : MonoBehaviour
     {
-        [SerializeField] private float rotationSpeed = 720f;
         [SerializeField] private float _smoothTime = 0.15f;
 
         private OrientationCore _orientationCore;
 
+        /// <summary>
+        /// Initializes the orientation kernel script.
+        /// </summary>
         private void Awake()
         {
-            _orientationCore = new OrientationCore(rotationSpeed, transform.eulerAngles.y, _smoothTime);
+            _orientationCore = new OrientationCore(transform.eulerAngles.y, _smoothTime);
         }
 
-        // ќписывает плавное вращение персонажа.
+        // Describes the characterТs smooth rotation.
         public void RotateTowards(Vector3 direction)
         {
             if (direction.sqrMagnitude < 0.01f) return;

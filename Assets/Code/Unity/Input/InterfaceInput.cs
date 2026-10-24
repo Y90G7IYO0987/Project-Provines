@@ -4,10 +4,13 @@ using UnityEngine.InputSystem;
 
 namespace ProjectProvines.Unity.Input
 {
+    /// <summary>
+    /// Input handler class for the interface.
+    /// </summary>
     public class InterfaceInput : MonoBehaviour
     {
         /// <summary>
-        /// Передает (-1,1) в зависимости от нажатой кнопки.
+        /// Transmits the values -1;1 depending on the pressed button.
         /// </summary>
         public event Action<int> OnMenuSwitchers;
 
@@ -28,10 +31,6 @@ namespace ProjectProvines.Unity.Input
             _playerControls.UI.StopHoldingCell.performed += OnStopCellInput;
         }
 
-        /// <summary>
-        /// Обрабатывает нажатия и посылает информацию через события.
-        /// </summary>
-        /// <param name="context">Параметры нажатия.</param>
         private void OnMenuSwitch(InputAction.CallbackContext context)
         {
             OnMenuSwitchers?.Invoke(context.control.name == "rightArrow" ? 1 : -1);

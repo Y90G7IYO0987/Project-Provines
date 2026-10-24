@@ -1,5 +1,10 @@
+using UnityEngine;
+
 namespace ProjectProvines.Core.UI
 {
+    /// <summary>
+    /// A class that works with button indices.
+    /// </summary>
     public class ButtonsCore
     {
         private readonly int _maxIndex;
@@ -8,26 +13,30 @@ namespace ProjectProvines.Core.UI
         private int _currentIndex;
 
         /// <summary>
-        /// Конструктор с назначением индексов для кнопок.
+        /// Indexes initialization.
         /// </summary>
-        /// <param name="maxIndex">Максимальный индекс.</param>
-        /// <param name="startPosition">Начальный индекс</param>
-        public ButtonsCore(int maxIndex, int startPosition)
+        public ButtonsCore(int maxIndex, int startIndex)
         {
             _maxIndex = maxIndex;
-            _startPosition = startPosition;
+            _startPosition = startIndex;
             _currentIndex = _startPosition;
         }
 
         /// <summary>
-        /// Сменяет индекс, новым-переданным. Не дает индексу выйти за пределы.
+        /// Replaces the index with a new one. Prevents it from going out of bounds.
         /// </summary>
-        /// <param name="index">Индекс для обновления.</param>
         public void UpdateIndex(int index)
         {
+            if (index > _maxIndex)
+            {
+                Debug.LogWarning("Buttons index out of range!");
+                return;
+            }
+
             _currentIndex = index;
         }
 
+        /// <returns>Current button index.</returns>
         public int GetCurrentIndex() => _currentIndex;
     }
 }

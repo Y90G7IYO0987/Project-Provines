@@ -4,6 +4,9 @@ using ProjectProvines.Unity.Input;
 
 namespace ProjectProvines.Core.Utils
 {
+    /// <summary>
+    /// Allows you to obtain useful player classes in a simple way.
+    /// </summary>
     public class PlayerUtils
     {
         private readonly PlayerInputController _playerInput;

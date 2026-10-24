@@ -1,23 +1,28 @@
-using ProjectProvines.Core.Infrastructure;
+п»їusing ProjectProvines.Core.Infrastructure;
 using System.Collections;
 using UnityEngine;
 
 namespace ProjectProvines.Unity.Entities
 {
+    /// <summary>
+    /// Processes entity animations.
+    /// </summary>
     public class EntityAnimations : MonoBehaviour
     {
-        private Animator _animator;
+        public bool IsNowAttacking => _canPlayAttack;
 
-        // Текущее перемещение по оси x.
+        // Current movement along the xвЂ‘axis.
         private float _xAxis => _entityController.XPosition;
         private float _zAxis => _entityController.ZPosition;
 
         private float _currentAttack = StartAttacksCount;
         private float _maxAttacksCount = AnimationsConfig.EntityAttacks.MaxAttacksCount;
 
+        private bool _canPlayAttack = true;
+
         private EntityController _entityController;
 
-        private bool _canPlayAttack = true;
+        private Animator _animator;
 
         private const float StartAttacksCount = AnimationsConfig.EntityAttacks.StartAttacksCount;
 
@@ -37,16 +42,18 @@ namespace ProjectProvines.Unity.Entities
             SwitchWalking();
         }
 
-        // Работа с анимациями перемещения.
+        /// <summary>
+        /// Processes movement animations.
+        /// </summary>
         private void SwitchWalking()
         {
-            _animator.SetFloat(AnimationsConfig.EntityAnims.XPosition, _xAxis);
-            _animator.SetFloat(AnimationsConfig.EntityAnims.ZPosition, _zAxis);
+            _animator.SetFloat(AnimationsConfig.Entity.XPosition, _xAxis);
+            _animator.SetFloat(AnimationsConfig.Entity.ZPosition, _zAxis);
         }
 
         /// <summary>
-        /// Управляет самим состоянием атаки.
-        /// Считает атаку, длительность анимации, выполняет задержку.
+        /// Manages the attack state.
+        /// Calculates the attack, the duration of the animation, and applies a delay.
         /// </summary>
         private void SwitchAttacking()
         {
@@ -58,20 +65,21 @@ namespace ProjectProvines.Unity.Entities
             if (_currentAttack >= _maxAttacksCount)
             {
                 _currentAttack = 1f;
-                _animator.SetFloat(AnimationsConfig.EntityAnims.CurrentAttack, _currentAttack);
+                _animator.SetFloat(AnimationsConfig.Entity.CurrentAttack, _currentAttack);
                 StartCoroutine(CalculateAttackDelay());
                 return;
             }
 
             _currentAttack++;
-            _animator.SetFloat(AnimationsConfig.EntityAnims.CurrentAttack, _currentAttack);
+            _animator.SetFloat(AnimationsConfig.Entity.CurrentAttack, _currentAttack);
             StartCoroutine(CalculateAttackDelay());
         }
 
         /// <summary>
-        /// Получает информацию о длительности следующей анимации.
+        /// Calculates the cooldown for the current attack.
+        /// And adds a cooldown to the current attack.
         /// </summary>
-        /// <returns>Длительность анимации.</returns>
+        /// <returns>Animation duration.</returns>
         private IEnumerator CalculateAttackDelay()
         {
             _canPlayAttack = false;

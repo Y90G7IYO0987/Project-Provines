@@ -3,25 +3,25 @@ using UnityEngine;
 namespace ProjectProvines.Core.Camera
 {
     /// <summary>
-    /// Основная логика орбитальной камеры.
+    /// The main logic of the orbital camera.
     /// </summary>
     public class CameraCore
     {
         public float Yaw => _yaw;
 
-        // Горизонтальный угол
+        // Horizontal angle
         private float _yaw;
-        // Вертикальный угол
+        // Vertical angle
         private float _pitch;
-        // Дистанция камеры от игрока
+        // Camera distance from the player
         private float _distance;
 
         /// <summary>
-        /// Устанавливает базовые значения углам и дистанции.
+        /// Sets the base values for angles and distances.
         /// </summary>
-        /// <param name="initialYaw">Начальный горизонтальный угол.</param>
-        /// <param name="initialPitch">Начальный вертикальный угол.</param>
-        /// <param name="defaultDistance">Базовая дистанция камеры от игрока.</param>
+        /// <param name="initialYaw">Initial horizontal angle.</param>
+        /// <param name="initialPitch">Initial vertical angle.</param>
+        /// <param name="defaultDistance">The basic camera distance from the player.</param>
         public CameraCore(float initialYaw, float initialPitch, float defaultDistance)
         {
             _yaw = initialYaw;
@@ -30,10 +30,10 @@ namespace ProjectProvines.Core.Camera
         }
 
         /// <summary>
-        /// Вращает камеру на заданные дельты.
+        /// Rotates the camera by the specified deltas.
         /// </summary>
-        /// <param name="yawDelta">Изменение горизонтального угла.</param>
-        /// <param name="pitchDelta">Изменение вертикального угла.</param>
+        /// <param name="yawDelta">Change in the horizontal angle.</param>
+        /// <param name="pitchDelta">Change in the vertical angle.</param>
         public void Rotate(float yawDelta, float pitchDelta)
         {
             _yaw += yawDelta;
@@ -41,22 +41,22 @@ namespace ProjectProvines.Core.Camera
         }
 
         /// <summary>
-        /// Ограничивает вертикальный угол, чтобы камера не переворачивалась.
+        /// It limits the vertical angle to prevent the camera from tipping over.
         /// </summary>
-        /// <param name="min">Минимальный угол.</param>
-        /// <param name="max">Максимальный угол.</param>
+        /// <param name="min">Minimum angle.</param>
+        /// <param name="max">Maximum angle.</param>
         public void ClampPitch(float min, float max)
         {
             _pitch = Mathf.Clamp(_pitch, min, max);
         }
 
         /// <summary>
-        /// Изменяет дистанцию камеры.
+        /// Changes the camera distance.
         /// </summary>
-        /// <param name="scrollDelta">Значение прокрутки колесика</param>
-        /// <param name="min">Минимальная дистанция.</param>
-        /// <param name="max">Максимальная дистанция.</param>
-        /// <param name="zoomSpeed">Скорость зума.</param>
+        /// <param name="scrollDelta">The meaning of scrolling the wheel</param>
+        /// <param name="min">Minimum distance.</param>
+        /// <param name="max">Maximum distance.</param>
+        /// <param name="zoomSpeed">Zoom speed.</param>
         public void Zoom(float scrollDelta, float min, float max, float zoomSpeed)
         {
             _distance -= scrollDelta * zoomSpeed;
@@ -64,7 +64,7 @@ namespace ProjectProvines.Core.Camera
         }
 
         /// <summary>
-        /// Устанавливает дистанцию напрямую.
+        /// Sets the distance directly.
         /// </summary>
         public void SetDistance(float distance, float minDistance, float maxDistance)
         {
@@ -73,11 +73,10 @@ namespace ProjectProvines.Core.Camera
 
 
         /// <summary>
-        /// Вычисляет позицию камеры в мире.
+        /// Calculates the camera’s position in the world.
         /// </summary>
-        /// <param name="targetCenter">Точка, вокруг которой вращается камера.</param>
-        /// <param name="heightOffset">Смещение вверх от цели камеры.</param>
-        /// <returns>Мировая позиция камеры.</returns>
+        /// <param name="targetCenter">The point around which the camera rotates.</param>
+        /// <returns>The camera’s global position.</returns>
         public Vector3 GetCameraPosition(Vector3 targetCenter)
         {
             Quaternion rotation = Quaternion.Euler(_pitch, _yaw, 0);
@@ -85,6 +84,11 @@ namespace ProjectProvines.Core.Camera
             return targetCenter + direction * _distance;
         }
 
+        /// <summary>
+        /// Provides smooth rotation of the camera along the horizontal axis.
+        /// </summary>
+        /// <param name="targetYaw">Target rotation in degrees</param>
+        /// <param name="followSpeed">Rotation speed</param>
         public void FollowYaw(float deltaTime, float targetYaw, float followSpeed)
         {
             float delta = Mathf.DeltaAngle(_yaw, targetYaw);

@@ -1,9 +1,13 @@
 using ProjectProvines.Core.Utils;
+using ProjectProvines.Unity.Scriptables;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace ProjectProvines.Unity.UI
 {
+    /// <summary>
+    /// The main UI class.
+    /// </summary>
     public class UIManager : MonoBehaviour
     {
         [SerializeField] private PlayerData playerData;

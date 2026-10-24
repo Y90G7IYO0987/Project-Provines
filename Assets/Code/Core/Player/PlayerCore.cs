@@ -3,13 +3,13 @@ using UnityEngine;
 namespace ProjectProvines.Core.Player
 {
     /// <summary>
-    /// Основной счет данных для игрока.
+    /// The main set of player physics data.
     /// </summary>
     public class PlayerCore
     {
         private readonly float _moveSpeed;
         private readonly float _gravity;
-        // Прижимная сила
+        // Clamping force
         private readonly float _groundedGravity;
         private readonly float _jumpHeight;
 
@@ -21,6 +21,15 @@ namespace ProjectProvines.Core.Player
 
         private float _requiredStartSpeed = 0.12f;
 
+        public bool IsPlayerRunning() => _isRunning && _moveDirection.magnitude > _requiredStartSpeed;
+
+        /// <summary>
+        /// Initializes the initial physics parameters.
+        /// </summary>
+        /// <param name="moveSpeed">Movement speed.</param>
+        /// <param name="jumpHeight">Jump height.</param>
+        /// <param name="gravity">Gravitational parameter.</param>
+        /// <param name="groundGravity">The parameter of the clamping force.</param>
         public PlayerCore(float moveSpeed, float jumpHeight, float gravity = -9.81f, float groundGravity = -2f)
         {
             _moveSpeed = moveSpeed;
@@ -30,19 +39,18 @@ namespace ProjectProvines.Core.Player
         }
 
         /// <summary>
-        /// Считает горизонтальную скорость игрока.
+        /// Calculates the player’s horizontal speed.
         /// </summary>
-        /// <returns>Вектор горизонтальной скорости</returns>
+        /// <returns>Horizontal velocity vector</returns>
         public Vector3 CalculateHorizontalVelocity()
         {
             return _moveDirection * _moveSpeed * _runMultiplier;
         }
 
         /// <summary>
-        /// Считает скорость падения игрока.
+        /// Calculates the player’s falling speed.
         /// </summary>
-        /// <param name="deltaTime">Параметр изменения времени</param>
-        /// <returns>Скорость падения</returns>
+        /// <returns>Falling speed</returns>
         public float CalculateVerticalVelocity(float deltaTime)
         {
             if (_isGrounded && _verticalSpeed < 0f)
@@ -70,23 +78,21 @@ namespace ProjectProvines.Core.Player
         }
 
         /// <summary>
-        /// Обновляет статус нахождения игрока на земле.
+        /// Updates the player’s status as being on the ground.
         /// </summary>
-        /// <param name="isGrounded">True, если игрок касается поверхности земли.</param>
+        /// <param name="isGrounded">The significance of a player being on the ground.</param>
         public void SetPlayerGrounded(bool isGrounded)
         {
             _isGrounded = isGrounded;
         }
 
         /// <summary>
-        /// Меняет направление движения игрока.
+        /// Changes the player’s direction of movement.
         /// </summary>
-        /// <param name="direction">Направление движения</param>
+        /// <param name="direction">Direction of movement</param>
         public void SetMoveDirection(Vector3 direction)
         {
             _moveDirection = direction;
         }
-
-        public bool IsPlayerRunning() => _isRunning && _moveDirection.magnitude > _requiredStartSpeed;
     }
 }

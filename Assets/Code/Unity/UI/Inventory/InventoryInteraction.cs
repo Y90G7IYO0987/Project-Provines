@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace ProjectProvines.Unity.UI
 {
+    /// <summary>
+    /// Processes the main input for the inventory menu.
+    /// </summary>
     public class InventoryInteraction : MonoBehaviour
     {
         [SerializeField] private InterfaceInput interfaceInput;
@@ -19,8 +22,10 @@ namespace ProjectProvines.Unity.UI
             interfaceInput.OnCellStopHolding += StopHoldingCell;
         }
 
-        // Обработчик нажатий.
-        // Руководит надеванием предмета в слот.
+        /// <summary>
+        /// Click handler.
+        /// Manages the insertion of the item into the slot.
+        /// </summary>
         private void EquipItem()
         {
             if (!gameObject.activeInHierarchy || _selectedItemData.ItemData == null)
@@ -29,8 +34,10 @@ namespace ProjectProvines.Unity.UI
             inventorySlots.EquipItemInSlot(_selectedItemData.ItemData, _selectedItemData.ItemGuid);
         }
 
-        // Обработчик нажатий.
-        // Руководит снятием предмета из слота.
+        /// <summary>
+        /// Click handler.
+        /// Manages the removal of an item from the slot.
+        /// </summary>
         private void StopHoldingCell()
         {
             if (!gameObject.activeInHierarchy)

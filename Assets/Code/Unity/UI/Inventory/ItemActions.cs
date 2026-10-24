@@ -1,4 +1,5 @@
 using ProjectProvines.Core.UI;
+using ProjectProvines.Unity.Scriptables;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -7,8 +8,13 @@ using UnityEngine.UI;
 
 namespace ProjectProvines.Unity.UI
 {
+    /// <summary>
+    /// The class that handles clicks on inventory cells.
+    /// It is hung on an object in one inventory slot.
+    /// </summary>
     public class ItemActions : MonoBehaviour, IPointerClickHandler
     {
+        // Size change parameters for cell animation.
         [SerializeField] private float _animateSize = 0.52f;
         [SerializeField] private float _animateTime = 0.24f;
 
@@ -25,6 +31,10 @@ namespace ProjectProvines.Unity.UI
         private string _itemGuid;
         private bool _isAnimate;
 
+        /// <summary>
+        /// Returns the key of the cell object (Guid).
+        /// </summary>
+        /// <returns>Cell Guid.</returns>
         public string GetItemGuid() => _itemGuid;
 
         private void Awake()
@@ -45,9 +55,8 @@ namespace ProjectProvines.Unity.UI
         }
 
         /// <summary>
-        /// Обработка клика на ячейку инвентаря.
+        /// Handling a click on inventory cell.
         /// </summary>
-        /// <param name="eventData"></param>
         public void OnPointerClick(PointerEventData eventData)
         {
             if (!_isAnimate)
@@ -68,12 +77,11 @@ namespace ProjectProvines.Unity.UI
         }
 
         /// <summary>
-        /// Анимация ячейки. Плавно увеличивает и уменьшает размер ячейки.
+        /// The cell animation processes.
+        /// Smoothly increases and returns to the base cell size.
         /// </summary>
-        /// <param name="item">Объект ячейки.</param>
-        /// <param name="size">Размер увеличения ячейки.</param>
-        /// <param name="animateTime">Время анимации.</param>
-        /// <returns></returns>
+        /// <param name="size">The size of the cell enlargement.</param>
+        /// <param name="animateTime">Animation time.</param>
         private IEnumerator AnimateClick(float size, float animateTime)
         {
             _isAnimate = true;

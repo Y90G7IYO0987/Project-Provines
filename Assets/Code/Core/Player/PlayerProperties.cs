@@ -1,9 +1,15 @@
+using System;
 using UnityEngine;
 
 namespace ProjectProvines.Core.Player
 {
+    /// <summary>
+    /// Player statistics class.
+    /// It describes the player’s health, stamina, and magic.
+    /// </summary>
     public class PlayerProperties
     {
+        public event Action OnPlayerDeath;
 
         public float CurrentHealth { get; private set; }
         public float CurrentMagic { get; private set; }
@@ -24,18 +30,33 @@ namespace ProjectProvines.Core.Player
             CurrentStamina = _maxStamina;
         }
 
-        public void AddHealth(float amount)
+        /// <summary>
+        /// Deals damage and reduces the player’s health.
+        /// </summary>
+        /// <param name="amount">Change factor.</param>
+        public void TakeDamage(float amount)
         {
-            CurrentHealth += amount;
+            CurrentHealth -= amount;
             CurrentHealth = Mathf.Clamp(CurrentHealth, 0f, _maxHealth);
+
+            if (CurrentHealth <= 0f)
+                OnPlayerDeath?.Invoke();
         }
 
+        /// <summary>
+        /// Changes the player’s magic amount.
+        /// </summary>
+        /// <param name="amount">Change factor.</param>
         public void AddMagic(float amount)
         {
             CurrentMagic += amount;
             CurrentMagic = Mathf.Clamp(CurrentMagic, 0f, _maxMagic);            
         }
 
+        /// <summary>
+        /// Changes the player’s stamina.
+        /// </summary>
+        /// <param name="amount">Change factor.</param>
         public void AddStamina(float amount)
         {
             CurrentStamina += amount;

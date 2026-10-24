@@ -1,41 +1,55 @@
-using ProjectProvines.Core.Entities;
+п»їusing ProjectProvines.Core.Entities;
 using ProjectProvines.Core.Infrastructure;
+using ProjectProvines.Core.Player;
+using ProjectProvines.Unity.Scriptables;
+using ProjectProvines.Unity.UI;
+using ProjectProvines.Unity.Weapon;
 using System;
-using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
 namespace ProjectProvines.Unity.Entities
 {
+    /// <summary>
+    /// Describes the behavior of the entity.
+    /// </summary>
     public class EntityController : MonoBehaviour
     {
         public event Action OnEntityAttacking;
 
-        // Перемещение (X).
+        // Movement (X).
         public float XPosition { get; private set; }
         public float ZPosition { get; private set; }
+
+        [SerializeField] private BarSliders barSliders;
 
         [SerializeField] private PlayerData playerData;
 
         [SerializeField] private float chasingDistance = 5f;
         [SerializeField] private float attackingDistance = 1.8f;
-        [SerializeField] private float inputCooldown = 0.24f;
 
         private int _currentState => _entityCore.EntityState;
 
         private int _defaultState = EntityStatesHash.Idle;
 
-        // Основное ядро логики.
+        private bool _canAttacking => _entityAnimations.IsNowAttacking;
+
+        // The core of logic.
         private EntityCore _entityCore;
+        private EntityAnimations _entityAnimations;
+
+        private PlayerProperties _playerProperties;
 
         private GameObject _playerPrefab;
         private NavMeshAgent _agent;
 
-        private bool _actuallyInput;
-
+        /// <summary>
+        /// Initializes the main components of the entity.
+        /// </summary>
         private void Awake()
         {
             _entityCore = new EntityCore();
+            _entityAnimations = GetComponent<EntityAnimations>();
 
             _agent = GetComponent<NavMeshAgent>();
 
@@ -45,10 +59,14 @@ namespace ProjectProvines.Unity.Entities
         private void Start()
         {
             _playerPrefab = playerData.Prefab;
+            _playerProperties = playerData.PlayerUtils.GetPlayerProperties();
 
             _agent.stoppingDistance = attackingDistance;
         }
 
+        /// <summary>
+        /// Changes the state of the entity.
+        /// </summary>
         private void Update()
         {
             ChooseState();
@@ -57,7 +75,7 @@ namespace ProjectProvines.Unity.Entities
         }
 
         /// <summary>
-        /// Проверяет и выбирает состояние для сущности.
+        /// Depending on the current parameters, it selects the state for the entity.
         /// </summary>
         private void ChooseState()
         {
@@ -83,26 +101,26 @@ namespace ProjectProvines.Unity.Entities
         }
 
         /// <summary>
-        /// Изменяет текущее состояние сущности на новое определенное.
+        /// Changes the current state of the entity to a new, defined state.
         /// </summary>
         private void ChangeEntityState()
         {
             int newState = _defaultState;
 
-            float distanceToPlayer = _entityCore.CalculateDistance(transform.position, 
+            float distanceToPlayer = _entityCore.CalculateDistance(transform.position,
                 _playerPrefab.transform.position);
-
-            if (distanceToPlayer <= attackingDistance)
+            
+            if (distanceToPlayer <= attackingDistance && _playerProperties.CurrentHealth > 0f)
                 newState = EntityStatesHash.Attacking;
 
-            if (distanceToPlayer <= chasingDistance && distanceToPlayer > attackingDistance)
+            if (distanceToPlayer <= chasingDistance && distanceToPlayer > attackingDistance && _playerProperties.CurrentHealth > 0f)
                 newState = EntityStatesHash.Chasing;
 
             _entityCore.ChangeEntityState(newState);
         }
 
         /// <summary>
-        /// Рандомная выборка точки и движение к ней.
+        /// Processes the arbitrary movement of an entity.
         /// </summary>
         private void Move()
         {
@@ -110,7 +128,7 @@ namespace ProjectProvines.Unity.Entities
         }
 
         /// <summary>
-        /// Следование сущности за игроком.
+        /// Handles the entityвЂ™s followвЂ‘up to the player.
         /// </summary>
         private void ChasingPlayer()
         {
@@ -121,31 +139,26 @@ namespace ProjectProvines.Unity.Entities
             _agent.destination = _playerPrefab.transform.position;
         }
 
+        /// <summary>
+        /// Processes the entity attack.
+        /// </summary>
         private void EntityAttacking()
         {
             _agent.isStopped = true;
-            
-            if (!_actuallyInput)
-                StartCoroutine(InputRoutine());
+
+            if (_canAttacking)
+            {
+                OnEntityAttacking?.Invoke();
+                barSliders.TakeDamage(WeaponController.Instance.EquippedWeapon.Damage);
+            }
         }
 
-        // Задает путь/перемещение сущности.
+        // Sets the entityвЂ™s movement vector.
         private void SetVelocityLengths()
         {
             Vector3 velocityVector = _agent.velocity.normalized;
             XPosition = velocityVector.x;
             ZPosition = velocityVector.z;
-        }
-
-        private IEnumerator InputRoutine()
-        {
-            _actuallyInput = true;
-
-            OnEntityAttacking?.Invoke();
-
-            yield return new WaitForSeconds(inputCooldown);
-
-            _actuallyInput = false;
         }
     }
 }
