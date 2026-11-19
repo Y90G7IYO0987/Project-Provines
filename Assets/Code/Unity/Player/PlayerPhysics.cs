@@ -1,4 +1,5 @@
 using ProjectProvines.Core.Player;
+using ProjectProvines.Core.System;
 using ProjectProvines.Core.Utils;
 using ProjectProvines.Unity.Animations;
 using ProjectProvines.Unity.Input;
@@ -21,19 +22,22 @@ namespace ProjectProvines.Unity.Player
 
         public bool IsRunning { get; private set; }
 
-        public WeaponStaticBox WeaponStaticBox { get; private set; }
+        public WeaponStaticBox WeaponStaticBox => weaponStaticBox;
 
         [SerializeField] private PlayerData playerData;
 
         [SerializeField] private float moveSpeed = 4.0f;
         [SerializeField] private float jumpHeight = 3.0f;
 
+        [SerializeField] private WeaponStaticBox weaponStaticBox;
+
         private PlayerCore _playerCore;
         private Orientation _orientation;
         private PlayerInputController _playerInput;
         private PlayerUtils _playerUtils;
         private PlayerAnimations _playerAnimations;
-        private BarSliders _barSliders;
+        private PlayerSliders _playerSliders;
+        private StaminaSystem _staminaSystem;
 
         private Transform _targetCamera;
         private CharacterController _characterController;
@@ -41,8 +45,9 @@ namespace ProjectProvines.Unity.Player
         private const float Gravity = -9.81f;
         private const float GroundedGravity = -2.0f;
 
-        public void SetBarSliders(BarSliders barSliders) => _barSliders = barSliders;
-        public void SetWeaponStaticBox(WeaponStaticBox staticBox) => WeaponStaticBox = staticBox;
+        public void SetPlayerSliders(PlayerSliders playerSliders) => _playerSliders = playerSliders;
+
+        public StaminaSystem GetStaminaSystem() => _staminaSystem;
 
         /// <summary>
         /// Initialization of the motion controller and the necessary motion classes.
@@ -54,6 +59,7 @@ namespace ProjectProvines.Unity.Player
             _playerAnimations = GetComponent<PlayerAnimations>();
 
             _playerCore = new PlayerCore(moveSpeed, jumpHeight, Gravity, GroundedGravity);
+            _staminaSystem = new StaminaSystem(playerData.MaxStamina, this);
         }
 
         /// <summary>
@@ -144,7 +150,7 @@ namespace ProjectProvines.Unity.Player
             if (context.phase == InputActionPhase.Started)
             {
                 _playerCore.StartRunning();
-                _barSliders.StaminaModifier();
+                _playerSliders.StaminaModifier();
             }
             else if (context.phase == InputActionPhase.Canceled)
                 _playerCore.StopRunning();
