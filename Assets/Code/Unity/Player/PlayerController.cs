@@ -20,7 +20,7 @@ namespace ProjectProvines.Unity.Player
 
     [RequireComponent(typeof(CameraController))]
     [RequireComponent(typeof(UnityInputControls))]
-    [RequireComponent(typeof(BarSliders))]
+    [RequireComponent(typeof(PlayerSliders))]
 
     [RequireComponent(typeof(WeaponController))]
     public class PlayerController : MonoBehaviour
@@ -31,21 +31,15 @@ namespace ProjectProvines.Unity.Player
 
         [SerializeField] private CameraController cameraController;
         [SerializeField] private UnityInputControls inputControls;
-        [SerializeField] private BarSliders barSliders;
+        [SerializeField] private PlayerSliders playerSliders;
 
         [SerializeField] private WeaponController weaponController;
 
         private PlayerUtils _playerUtils;
-        private PlayerProperties _playerProperties;
 
         private void Awake()
         {
             Initialize();
-        }
-
-        private void Start()
-        {            
-            _playerProperties.OnPlayerDeath += OnPlayerDeath;
         }
 
         /// <summary>
@@ -53,30 +47,15 @@ namespace ProjectProvines.Unity.Player
         /// </summary>
         private void Initialize()
         {
-            _playerProperties = new PlayerProperties(playerData.MaxHealth, playerData.MaxMagic, playerData.MaxStamina);
-
             var player = Instantiate(playerPrefab, transform.parent);
             playerData.Prefab = player;
-            _playerUtils = new PlayerUtils(playerInput, cameraController, inputControls, _playerProperties);
+            _playerUtils = new PlayerUtils(playerInput, cameraController, inputControls);
             playerData.PlayerUtils = _playerUtils;
 
             var physics = playerData.Prefab.GetComponent<PlayerPhysics>();
-            physics.SetBarSliders(barSliders);
+            physics.SetPlayerSliders(playerSliders);
 
             playerData.WeaponController = weaponController;
-        }
-
-        /// <summary>
-        /// Player death handler.
-        /// </summary>
-        private void OnPlayerDeath()
-        {
-            Debug.Log("The player is die!");
-        }
-
-        private void OnDestroy()
-        {
-            _playerProperties.OnPlayerDeath -= OnPlayerDeath;
         }
     }
 }
