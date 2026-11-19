@@ -1,4 +1,5 @@
 ﻿using ProjectProvines.Core.Infrastructure;
+using ProjectProvines.Unity.Scriptables;
 using System.Collections;
 using UnityEngine;
 
@@ -11,12 +12,14 @@ namespace ProjectProvines.Unity.Entities
     {
         public bool IsNowAttacking => _canPlayAttack;
 
+        [SerializeField] private EnemyData enemyData;
+
         // Current movement along the x‑axis.
         private float _xAxis => _entityController.XPosition;
         private float _zAxis => _entityController.ZPosition;
 
-        private float _currentAttack = StartAttacksCount;
-        private float _maxAttacksCount = AnimationsConfig.EntityAttacks.MaxAttacksCount;
+        private float _currentAttack = 1f;
+        private float _maxAttacksCount;
 
         private bool _canPlayAttack = true;
 
@@ -24,12 +27,12 @@ namespace ProjectProvines.Unity.Entities
 
         private Animator _animator;
 
-        private const float StartAttacksCount = AnimationsConfig.EntityAttacks.StartAttacksCount;
-
         private void Awake()
         {
             _animator = GetComponent<Animator>();
             _entityController = GetComponent<EntityController>();
+
+            _maxAttacksCount = enemyData.AttackAnimationsCount;
         }
 
         private void Start()
