@@ -1,6 +1,9 @@
 using ProjectProvines.Unity.Player;
+using System;
+using System.Collections;
 using System.Threading;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace ProjectProvines.Core.System
 {
@@ -9,20 +12,20 @@ namespace ProjectProvines.Core.System
     /// </summary>
     public class StaminaSystem
     {
-        public float CurrentStamina { get; private set; }
+        public Single CurrentStamina { get; private set; }
 
-        private readonly float _maxStamina;
-        private readonly float _staminaModifierPercent = 0.11f;
-        private readonly int _staminaModifierInterval = 750;
+        private readonly Single _maxStamina;
+        private readonly Single _staminaModifierPercent = 0.11f;
+        private readonly Single _staminaModifierInterval = 0.75f;
 
-        private readonly float _regeningPercent = 0.15f;
-        private readonly int _cooldownBeforeRegening = 800;
+        private readonly Single _regeningPercent = 0.15f;
+        private readonly Single _cooldownBeforeRegening = 0.8f;
 
         private readonly PlayerPhysics _physics;
 
-        private bool _isRunning => _physics.IsRunning;
+        private Boolean _isRunning => _physics.IsRunning;
 
-        public StaminaSystem(float maxStamina, PlayerPhysics physics)
+        public StaminaSystem(Single maxStamina, PlayerPhysics physics)
         {
             _maxStamina = maxStamina;
             CurrentStamina = _maxStamina;
@@ -41,13 +44,13 @@ namespace ProjectProvines.Core.System
         /// <summary>
         /// The basic logic of stamina subtraction.
         /// </summary>
-        private async Task ModifyStamina()
+        private IEnumerator ModifyStamina()
         {
             while (CurrentStamina > 0f && _isRunning)
             {
                 CurrentStamina -= _maxStamina * _staminaModifierPercent;
 
-                await Task.Delay(_staminaModifierInterval);
+                yield return new WaitForSeconds(_staminaModifierInterval);
             }
 
             if (CurrentStamina < _maxStamina)
@@ -57,15 +60,14 @@ namespace ProjectProvines.Core.System
         /// <summary>
         /// The logic of health regeneration.
         /// </summary>
-        private async Task RegeningStamina()
+        private IEnumerator RegeningStamina()
         {
-            await Task.Delay(_cooldownBeforeRegening);
+            yield return new WaitForSeconds(_cooldownBeforeRegening);
 
             while (CurrentStamina < (_maxStamina * _regeningPercent) && !_isRunning)
             {
                 CurrentStamina += _maxStamina * _regeningPercent;
-
-                await Task.Delay(_staminaModifierInterval);
+                yield return new WaitForSeconds(_staminaModifierInterval);
             }
         }
     }
