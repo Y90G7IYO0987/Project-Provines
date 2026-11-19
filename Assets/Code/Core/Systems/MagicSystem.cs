@@ -1,6 +1,6 @@
 using System;
 using System.Collections;
-using System.Threading.Tasks;
+using UnityEngine;
 
 namespace ProjectProvines.Core.System
 {
@@ -9,18 +9,18 @@ namespace ProjectProvines.Core.System
     /// </summary>
     public class MagicSystem
     {
-        public float CurrentMagic { get; private set; }
+        public Single CurrentMagic { get; private set; }
 
-        private readonly float _maxMagic;
-        private readonly float _modifyMagicCount = 0.18f;
+        private readonly Single _maxMagic;
+        private readonly Single _modifyMagicCount = 0.18f;
 
-        private readonly int _regenerationIntervalMS = 600;
-        private readonly int _cooldownBeforeRegeneration = 2400;
-        private readonly float _regenerationThreshold = 0.35f;
+        private readonly Single _regenerationInterval = 0.6f;
+        private readonly Single _cooldownBeforeRegeneration = 2.4f;
+        private readonly Single _regenerationThreshold = 0.35f;
 
         private bool _isRegening;
 
-        public MagicSystem(float maxMagic)
+        public MagicSystem(Single maxMagic)
         {
             _maxMagic = maxMagic;
             CurrentMagic = _maxMagic;
@@ -30,7 +30,7 @@ namespace ProjectProvines.Core.System
         /// Changes the magic to a new specified amount.
         /// </summary>
         /// <param name="amount">The amount of new magic.</param>
-        public void ModifyMagic(float amount)
+        public void ModifyMagic(Single amount)
         {
             CurrentMagic -= amount;
             CurrentMagic = Math.Clamp(CurrentMagic, 0f, _maxMagic);
@@ -53,17 +53,16 @@ namespace ProjectProvines.Core.System
         /// <summary>
         /// Replenishes the magic supply over a certain period of time.
         /// </summary>
-        private async Task RegenerateMagic()
+        private IEnumerator RegenerateMagic()
         {
-            await Task.Delay(_cooldownBeforeRegeneration);
-
+            yield return new WaitForSeconds(_cooldownBeforeRegeneration);
             _isRegening = true;
 
             while (CurrentMagic < _maxMagic)
             {
                 CurrentMagic += _maxMagic * _modifyMagicCount;
 
-                await Task.Delay(_regenerationIntervalMS);
+                yield return new WaitForSeconds(_regenerationInterval);
             }
 
             CurrentMagic = Math.Clamp(CurrentMagic, 0, _maxMagic);
