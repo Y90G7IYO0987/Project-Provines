@@ -14,6 +14,7 @@ namespace ProjectProvines.Unity.Animations
     public class PlayerAnimations : MonoBehaviour
     {
         public bool IsPlayerAttacking => _isAttacking;
+        public bool IsColliderPlaced { get; private set; }
 
         [SerializeField] private PlayerData playerData;        
 
@@ -32,6 +33,8 @@ namespace ProjectProvines.Unity.Animations
 
         private const float MaxAttacks = AnimationsConfig.PlayerAttacks.MaxAttacksCount;
         private const float DefaultAttack = AnimationsConfig.PlayerAttacks.StartAttackCount;
+
+        public void ChangeColliderState(bool newState) => IsColliderPlaced = newState;
 
         private void Awake()
         {
@@ -70,7 +73,7 @@ namespace ProjectProvines.Unity.Animations
         public void TryAttack()
         {
             if (_isAttacking || _physics.IsRunning)
-                return;
+                return;            
 
             _animator.SetTrigger(AnimationsConfig.Player.Attack);
             CalculateAttack();
@@ -121,8 +124,12 @@ namespace ProjectProvines.Unity.Animations
         private IEnumerator AttackCooldownRoutine()
         {
             _isAttacking = true;
+
             yield return new WaitForSeconds(CalculateAttackCooldown());
+
             _isAttacking = false;
+
+            IsColliderPlaced = false;
         }
 
         private void OnDestroy()
