@@ -50,14 +50,5 @@ namespace ProjectProvines.Core.Infrastructure
             public static readonly int IsRunning = Animator.StringToHash("IsRunning");
             public static readonly int IsDie = Animator.StringToHash("IsDie");
         }
-
-        /// <summary>
-        /// The main constants of the entity attack.
-        /// </summary>
-        public static class EntityAttacks
-        {
-            public const float StartAttacksCount = 1f;
-            public const float MaxAttacksCount = 2f;
-        }
     }
 }
