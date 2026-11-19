@@ -1,6 +1,6 @@
 namespace ProjectProvines.Unity.Scriptables
 {
-    public enum WeaponCellType
+    public enum WeaponType
     {
         Static,
         Dynamic

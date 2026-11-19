@@ -6,6 +6,6 @@ namespace ProjectProvines.Unity.Scriptables
     public class WeaponCell : CellData
     {
         public float Damage;
-        public WeaponCellType WeaponType;
+        public WeaponType WeaponType;
     }
 }
