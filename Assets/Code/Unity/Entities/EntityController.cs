@@ -1,6 +1,6 @@
 ﻿using ProjectProvines.Core.Entities;
 using ProjectProvines.Core.Infrastructure;
-using ProjectProvines.Core.Player;
+using ProjectProvines.Core.System;
 using ProjectProvines.Unity.Scriptables;
 using ProjectProvines.Unity.UI;
 using ProjectProvines.Unity.Weapon;
@@ -21,9 +21,10 @@ namespace ProjectProvines.Unity.Entities
         public float XPosition { get; private set; }
         public float ZPosition { get; private set; }
 
-        [SerializeField] private BarSliders barSliders;
+        [SerializeField] private PlayerSliders playerSliders;
 
         [SerializeField] private PlayerData playerData;
+        [SerializeField] private EntityData entityData;
 
         [SerializeField] private float chasingDistance = 5f;
         [SerializeField] private float attackingDistance = 1.8f;
@@ -38,7 +39,7 @@ namespace ProjectProvines.Unity.Entities
         private EntityCore _entityCore;
         private EntityAnimations _entityAnimations;
 
-        private PlayerProperties _playerProperties;
+        private HealthSystem _playerHealthSystem;
 
         private GameObject _playerPrefab;
         private NavMeshAgent _agent;
@@ -59,9 +60,10 @@ namespace ProjectProvines.Unity.Entities
         private void Start()
         {
             _playerPrefab = playerData.Prefab;
-            _playerProperties = playerData.PlayerUtils.GetPlayerProperties();
 
             _agent.stoppingDistance = attackingDistance;
+
+            _playerHealthSystem = playerData.HealthSystem;
         }
 
         /// <summary>
@@ -69,6 +71,9 @@ namespace ProjectProvines.Unity.Entities
         /// </summary>
         private void Update()
         {
+            if (entityData.EntityTypeSpecification == EntityTypeSpecification.Friendly)
+                return;
+
             ChooseState();
             ChangeEntityState();
             SetVelocityLengths();
@@ -109,11 +114,14 @@ namespace ProjectProvines.Unity.Entities
 
             float distanceToPlayer = _entityCore.CalculateDistance(transform.position,
                 _playerPrefab.transform.position);
-            
-            if (distanceToPlayer <= attackingDistance && _playerProperties.CurrentHealth > 0f)
+
+            if (distanceToPlayer <= attackingDistance &&
+                _playerHealthSystem.CurrentHealth > 0f && entityData.EntityTypeSpecification != EntityTypeSpecification.Neutral)
                 newState = EntityStatesHash.Attacking;
 
-            if (distanceToPlayer <= chasingDistance && distanceToPlayer > attackingDistance && _playerProperties.CurrentHealth > 0f)
+            if (distanceToPlayer <= chasingDistance && 
+                distanceToPlayer > attackingDistance 
+                && _playerHealthSystem.CurrentHealth > 0f && entityData.EntityTypeSpecification != EntityTypeSpecification.Neutral)
                 newState = EntityStatesHash.Chasing;
 
             _entityCore.ChangeEntityState(newState);
@@ -124,7 +132,6 @@ namespace ProjectProvines.Unity.Entities
         /// </summary>
         private void Move()
         {
-            SetVelocityLengths();
         }
 
         /// <summary>
@@ -149,7 +156,8 @@ namespace ProjectProvines.Unity.Entities
             if (_canAttacking)
             {
                 OnEntityAttacking?.Invoke();
-                barSliders.TakeDamage(WeaponController.Instance.EquippedWeapon.Damage);
+
+                playerSliders.TakeDamage(WeaponController.Instance.EquippedWeapon.Damage);
             }
         }
 
