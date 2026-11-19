@@ -1,3 +1,4 @@
+using ProjectProvines.Unity.Entities;
 using ProjectProvines.Unity.Player;
 using UnityEngine;
 
@@ -22,14 +23,19 @@ namespace ProjectProvines.Unity.Weapon
         private void Awake()
         {
             _boxCollider = GetComponent<BoxCollider>();
-
-            playerPhysics.SetWeaponStaticBox(this);
         }
 
         private void OnTriggerEnter(Collider collision)
         {
-            Debug.Log($"Touch with - {collision}");
+            if (collision.CompareTag("Enemy"))
+            {
+                var health = collision.GetComponentInParent<EntityHealthManager>();
+
+                if (health == null)
+                    return;
+
+                health.TakeDamage(WeaponController.Instance.EquippedWeapon.Damage);
+            }
         }
     }
-
 }
