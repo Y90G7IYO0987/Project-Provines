@@ -37,8 +37,6 @@ namespace ProjectProvines.Unity.Weapon
         private EquippedWeapon _weaponData;
         private PlayerAnimations _playerAnimations;
 
-        private bool _isAttacking => _playerAnimations.IsPlayerAttacking;
-
         private void Awake()
         {
             Instance = this;
@@ -65,9 +63,13 @@ namespace ProjectProvines.Unity.Weapon
         {
             OnPlayerAttacking?.Invoke();
 
-            if (EquippedWeapon.WeaponType == WeaponCellType.Static)
-                if (!_isAttacking)
+            if (EquippedWeapon.WeaponType == WeaponType.Static)
+                if (!_playerAnimations.IsColliderPlaced)
+                {
+                    _playerAnimations.ChangeColliderState(true);
                     StartCoroutine(SwitchColliderStatus());
+                }
+
         }
 
         /// <summary>
